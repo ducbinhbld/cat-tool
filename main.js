@@ -8,7 +8,7 @@ const getHeader = async (user) => {
   return {
     accept: "*/*",
     "accept-language": "en-US,en;q=0.9",
-    authorization: `tma ${user.auth}`,
+    authorization: `tma ${user.replace(/(\r\n|\n|\r)/gm, "")}`,
     "content-type": "application/json",
     origin: "https://cats-frontend.tgapps.store",
     priority: "u=1, i",
@@ -22,10 +22,11 @@ const getHeader = async (user) => {
 
 const getTasks = async (user) => {
   const header = await getHeader(user);
+  console.log({headers: header})
   try {
     const response = await axios.get(
       "https://api.catshouse.club/tasks/user?group=cats",
-      { headers: header }
+      { headers: header, timeout: 10000 }
     );
     console.log("tasks", response.data.tasks);
     const not_completed_tasks = response.data.tasks.filter(
@@ -77,6 +78,7 @@ async function main() {
       );
       const user = web_app_data.tgWebAppData;
       let tasks = [];
+      console.log({ user });
       const normalTasks = await getTasks(user);
       const tasksBitget = await getTasksBitget(user);
       console.log("normalTasks", normalTasks);
